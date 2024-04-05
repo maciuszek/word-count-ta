@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="WordCountApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="wordcount" />
+    <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/src/test/resources/input.txt" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.maciuszek.wordcount.WordCountApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
