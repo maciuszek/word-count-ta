@@ -31,6 +31,7 @@ public class CountService {
 
     public Flux<String> words(Flux<String> stream) {
         Map<String, CountNode> wordCountMap = new HashMap<>();
+        Map<Integer, CountNode> frequencyMap = new HashMap<>();
         CountNode head = new CountNode();
         CountNode tail = new CountNode();
         head.next = tail;
@@ -53,21 +54,20 @@ public class CountService {
                     }
                     countNode.incFrequency();
 
-                    CountNode current = countNode.prev;
-                    while (current != head && countNode.frequency > current.frequency) {
-                        current = current.prev;
+                    CountNode frequencyNode = frequencyMap.get(countNode.frequency);
+                    if (frequencyNode == null) {
+                        frequencyMap.put(countNode.frequency, countNode);
+                        frequencyNode = head;
                     }
 
-                    if (current != countNode) {
-                        countNode.prev.next = countNode.next;
-                        countNode.next.prev = countNode.prev;
+                    countNode.prev.next = countNode.next;
+                    countNode.next.prev = countNode.prev;
 
-                        countNode.next = current.next;
-                        countNode.prev = current;
+                    countNode.next = frequencyNode.next;
+                    countNode.prev = frequencyNode;
 
-                        current.next.prev = countNode;
-                        current.next = countNode;
-                    }
+                    frequencyNode.next.prev = countNode;
+                    frequencyNode.next = countNode;
                 })
                 .thenMany(Flux.fromStream(() -> {
                     CountNode current = head.next;
