@@ -26,3 +26,6 @@ docker run --rm \
 -e ARGS='/app/./src/test/resources/input.txt /app/./src/test/resources/input2.txt' \
 com.maciuszek/wordcount:local
 ```
+
+### More Info
+The Makefile has a help page. Run `make help` or just `make`
