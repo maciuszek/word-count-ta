@@ -1,6 +1,8 @@
 package com.maciuszek.wordcount.service;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -10,72 +12,80 @@ import java.util.*;
 public class CountService {
 
     @NoArgsConstructor
-    private static class CountNode {
+    private static class WordCountNode {
 
-        CountNode next;
-        CountNode prev;
+        WordCountNode next;
+        WordCountNode prev;
 
-        String data;
-        int frequency;
+        @Getter
+        @Setter
+        private String word;
+        @Getter
+        @Setter
+        private int frequency;
 
-        CountNode(String data, int frequency) {
-            this.data = data;
+        WordCountNode(String word, int frequency) {
+            this.word = word;
             this.frequency = frequency;
-        }
-
-        void incFrequency() {
-            ++frequency;
         }
 
     }
 
     public Flux<String> words(Flux<String> stream) {
-        Map<String, CountNode> wordCountMap = new HashMap<>();
-        Map<Integer, CountNode> frequencyMap = new HashMap<>();
-        CountNode head = new CountNode();
-        CountNode tail = new CountNode();
+        // count words using hash key collision in hashmap and actively sort the order of a linked list of references to the map using some kind of O(1) lfu algorithm I came up with
+        Map<String, WordCountNode> wordMap = new HashMap<>();
+        Map<Integer, WordCountNode> wordFrequencyMap = new HashMap<>();
+
+        WordCountNode head = new WordCountNode();
+        WordCountNode tail = new WordCountNode();
         head.next = tail;
         tail.prev = head;
-        wordCountMap.put("", head);
+        wordMap.put("", head);
 
         return stream.flatMap(this::scrapeWords)
                 .doOnNext(word -> {
-                    CountNode countNode = wordCountMap.get(word);
-                    if (countNode == null) {
-                        countNode = new CountNode(word, 0);
+                    WordCountNode wordNode = wordMap.get(word);
+                    if (wordNode == null) {
+                        wordNode = new WordCountNode(word, 0);
 
-                        countNode.prev = tail.prev;
-                        countNode.next = tail;
+                        // it's probably faster setting nulls than having a condition so redundantly insert wordNode to end of list
+                        wordNode.prev = tail.prev;
+                        wordNode.next = tail;
+                        tail.prev.next = wordNode;
+                        tail.prev = wordNode;
 
-                        tail.prev.next = countNode;
-                        tail.prev = countNode;
-
-                        wordCountMap.put(word, countNode);
-                    }
-                    countNode.incFrequency();
-
-                    CountNode frequencyNode = frequencyMap.get(countNode.frequency);
-                    if (frequencyNode == null) {
-                        frequencyMap.put(countNode.frequency, countNode);
-                        frequencyNode = head;
+                        wordMap.put(word, wordNode);
                     }
 
-                    countNode.prev.next = countNode.next;
-                    countNode.next.prev = countNode.prev;
+                    int newFrequency = wordNode.getFrequency() + 1;
+                    wordNode.setFrequency(newFrequency);
 
-                    countNode.next = frequencyNode.next;
-                    countNode.prev = frequencyNode;
+                    WordCountNode nodeMatchingFrequency = wordFrequencyMap.get(newFrequency);
+                    if (nodeMatchingFrequency == null) {
+                        wordFrequencyMap.put(wordNode.getFrequency(), wordNode); // add to frequency map if non exist to be used for future position mapping
+                        nodeMatchingFrequency = head; // use head if none exist to be inserted at the top of the list
+                    }
 
-                    frequencyNode.next.prev = countNode;
-                    frequencyNode.next = countNode;
+                    // remove wordNode from list
+                    wordNode.prev.next = wordNode.next;
+                    wordNode.next.prev = wordNode.prev;
+
+                    // insert workNode to new position in list
+                    wordNode.next = nodeMatchingFrequency.next;
+                    wordNode.prev = nodeMatchingFrequency;
+                    nodeMatchingFrequency.next.prev = wordNode;
+                    nodeMatchingFrequency.next = wordNode;
                 })
                 .thenMany(Flux.fromStream(() -> {
-                    CountNode current = head.next;
+                    // consolidate the created hashmap into list of formatted strings using the hopefully sorted linked list and capture a stream of the list as a new flux
                     List<String> values = new ArrayList<>();
+
+                    WordCountNode current = head.next;
                     while (current != tail) {
-                        values.add(String.format("%s: %s", current.data, current.frequency));
+                        values.add(String.format("%s: %s", current.getWord(), current.getFrequency()));
                         current = current.next;
                     }
+
                     return values.stream();
                 }));
     }
