@@ -1,6 +1,6 @@
 ### Description
 
-File word count implementation with Spring and Reactive programming
+File word count to stdout implementation with Spring in a reactive programming paradigm. Structured with extensibility for alternative data ingress/egress and non-reactive implementations.
 
 ### Dependencies
 * JDK 17

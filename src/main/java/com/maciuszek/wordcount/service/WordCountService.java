@@ -81,8 +81,15 @@ public class WordCountService implements CountService<Flux<WordCount>, Flux<Stri
                 }));
     }
 
-    private Flux<String> scrapeWords(String s) {
-        return Flux.fromArray(s.split("[^\\w']+")); // filter alphanumeric words
+    private Flux<String> scrapeWords(String stringOfWords) {
+        return Flux.fromArray(
+                format(stringOfWords)
+                        .split("[^\\w']+") // filter alphanumeric words
+        );
+    }
+
+    private String format(String stringOfWords) {
+        return stringOfWords.toLowerCase(); // assume word count shouldn't be case-sensitive
     }
 
 }
