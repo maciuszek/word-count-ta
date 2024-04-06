@@ -28,7 +28,8 @@ com.maciuszek/wordcount:local
 ```
 
 ### More Info
-The Makefile has a help page. Run `make help` or just `make`
+* To enable full debug logging run the jvm with -Dlogging.level.com.maciuszek.wordcount=DEBUG
+* The Makefile has a help page. Run `make help` or just `make`
 
 ### TODO
 Setup GitHub Actions for CI and push to Docker Hub
