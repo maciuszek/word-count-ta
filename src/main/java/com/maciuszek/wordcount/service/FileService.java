@@ -9,7 +9,7 @@ import java.util.Optional;
 @Service
 public class FileService {
 
-    // todo maybe need to validate if the path is correct/adheres to host OS
+    // todo maybe need to validate if the path is correct/adheres to host OS format
     public File load(String pathToFile) {
         File file = new File(pathToFile);
         validate(file).ifPresent(exceptionType -> {

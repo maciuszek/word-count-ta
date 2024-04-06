@@ -19,7 +19,7 @@ public class FileInputReader implements InputReader<Flux<String>, File> {
                 reader -> Flux.fromStream(new BufferedReader(reader).lines()),
                 reader -> {
                     try {
-                        reader.close(); // todo refactor non-blocking
+                        reader.close(); // todo see if i can refactor this to be absolutely non-blocking (since we're dealing with file descriptors maybe not and/or os specific)
                     } catch (IOException e) {
                         throw new FileException(FileException.Type.ERROR_CLOSING_FILE_READER, e);
                     }

@@ -1,7 +1,7 @@
 package com.maciuszek.wordcount.output;
 
-public interface OutputWriter<T> {
+public interface OutputWriter<E> {
 
-    void write(T s);
+    void write(E e);
 
 }

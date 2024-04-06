@@ -18,6 +18,8 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<reactor.version>3.6.0</reactor.version>
+		<logback.version>1.4.14</logback.version>
 		<lombok.version>1.18.32</lombok.version>
 	</properties>
 
@@ -32,20 +34,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
-			<version>3.6.0</version> <!-- todo parameterize-->
+			<version>${reactor.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.4.14</version> <!-- todo parameterize-->
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

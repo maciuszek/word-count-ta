@@ -6,6 +6,7 @@ public class FileException extends RuntimeException {
 
     @Getter
     public enum Type {
+        // todo think about using external message sources
         DOES_NOT_EXIST("File does not exist"),
         CANNOT_READ("Cannot read the file"),
         ERROR_CLOSING_FILE_READER("Error closing file");
