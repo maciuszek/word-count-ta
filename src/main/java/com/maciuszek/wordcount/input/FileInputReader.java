@@ -1,5 +1,6 @@
 package com.maciuszek.wordcount.input;
 
+import com.maciuszek.wordcount.exception.FileException;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -18,9 +19,9 @@ public class FileInputReader implements InputReader<Flux<String>, File> {
                 reader -> Flux.fromStream(new BufferedReader(reader).lines()),
                 reader -> {
                     try {
-                        reader.close(); // todo make this not blocking
+                        reader.close(); // todo refactor non-blocking
                     } catch (IOException e) {
-                        throw new RuntimeException(e); // todo create custom exception
+                        throw new FileException(FileException.Type.ERROR_CLOSING_FILE_READER, e);
                     }
                 }
         );

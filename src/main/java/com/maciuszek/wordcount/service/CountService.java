@@ -12,7 +12,7 @@ public class CountService {
 
     public Flux<String> words(Flux<String> stream) {
         Map<String, Integer> wordCountMap = new HashMap<>();
-        return stream.flatMap(this::streamWords)
+        return stream.flatMap(this::scrapeWords)
                 .doOnNext(word -> wordCountMap.compute(
                         word,
                         (key, val) -> (val == null) ? 1 : val + 1
@@ -23,8 +23,8 @@ public class CountService {
                 );
     }
 
-    private Flux<String> streamWords(String s) {
-        return Flux.fromArray(s.split(" "));
+    private Flux<String> scrapeWords(String s) {
+        return Flux.fromArray(s.split("[^\\w']+")); // filter alphanumeric words
     }
 
 }
