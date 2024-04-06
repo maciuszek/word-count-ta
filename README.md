@@ -30,5 +30,5 @@ com.maciuszek/wordcount:local
 ### More Info
 The Makefile has a help page. Run `make help` or just `make`
 
-## TODO
+### TODO
 Setup GitHub Actions for CI and push to Docker Hub
