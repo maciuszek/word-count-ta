@@ -39,7 +39,7 @@ public class WordCountService implements CountService<Flux<WordCount>, Flux<Stri
                     if (wordNode == null) {
                         wordNode = new WordCountNode(word);
 
-                        // it's probably faster setting nulls than having a condition so redundantly insert wordNode to end of list
+                        // it's probably faster having next and prev set, than including conditions for null checking per iteration, so redundantly insert wordNode to end of list
                         wordNode.prev = tail.prev;
                         wordNode.next = tail;
                         tail.prev.next = wordNode;
