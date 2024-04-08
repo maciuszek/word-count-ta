@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Component
-public class FrequencySorter implements Sorter<Flux<WordCount>> {
+public class DescendingFrequencySorter implements Sorter<Flux<WordCount>> {
 
     @Override
     public Flux<WordCount> sort(Flux<WordCount> flux) {
