@@ -7,18 +7,18 @@ File word count to stdout implementation with Spring in a reactive programming p
 * gnumake (optional)
 * docker and an active daemon (optional)
 
-### Build Jar
+### Build The App As A Jar
 `./mvnw package`
 or if you have gnumake
 `make jar`
 
-### Run Jar
+### Run The Jar
 `java -jar target/wordcount-*-SNAPSHOT.jar ./src/test/resources/input.txt`
 
-### Build Container (requires optional dependencies)
+### Build A Container To Run The Jar (requires all dependencies including optional)
 `make image`
 
-### Run Container (requires optional dependencies)
+### Run The Container (requires docker)
 ```
 docker run --rm \
 -v ./src/test/resources/input.txt:/app/./src/test/resources/input.txt \
@@ -30,5 +30,8 @@ com.maciuszek/wordcount:0.0.1-SNAPSHOT
 * To enable full debug logging run the jvm with `-Dlogging.level.com.maciuszek.wordcount=DEBUG`
 * The Makefile has a help page. Run `make help` or just `make`
 
-### TODO
+### Experimental
+An alternative faster and more efficient sorting implementation is being developed https://github.com/maciuszek/word-count-ta/tree/active_sort 
+
+### Todo
 Setup GitHub Actions for CI and push to Docker Hub

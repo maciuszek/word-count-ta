@@ -18,7 +18,7 @@ public class DescendingFrequencySorter implements Sorter<Flux<WordCount>> {
             List<WordCount> wordCountList = wordCountFequencyMap.getOrDefault(key, new ArrayList<>());
             wordCountList.add(wordCount);
             wordCountFequencyMap.put(key, wordCountList);
-        }) // for production the sorting algorithm would need to leverage a database that can automatically scale since this assumes an undefined amount of memory
+        }) // for production the sorting algorithm would need to leverage a database that can automatically scale since this assumes an undefined amount of memory. a better solution would be active sorting as attempted with https://github.com/maciuszek/word-count-ta/blob/active_sort/src/main/java/com/maciuszek/wordcount/service/ActiveSortingCountService.java
         .thenMany(Flux.fromStream(() -> {
             // using the populated hashmap return a new stream of sorted WordCount objects by frequency
             List<Integer> frequencies = new ArrayList<>(wordCountFequencyMap.keySet());
