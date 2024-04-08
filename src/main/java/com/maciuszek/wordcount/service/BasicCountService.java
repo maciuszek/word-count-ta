@@ -9,6 +9,7 @@ import java.util.*;
 @Service
 public class BasicCountService implements CountService<Flux<WordCount>, Flux<String>> {
 
+    @Override
     public Flux<WordCount> count(Flux<String> flux) {
         // for production, a database would need to be utilized in place of the hashmap since the stream size and
         // implicitly the memory of the hashmap is undefined. we would probably want to use a key-value database (one
