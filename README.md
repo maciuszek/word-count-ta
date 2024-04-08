@@ -5,7 +5,7 @@ File word count to stdout implementation with Spring in a reactive programming p
 ### Dependencies
 * JDK 17
 * gnumake (optional)
-* docker and an active daemon listening (optional)
+* docker and an active daemon (optional)
 
 ### Build Jar
 `./mvnw package`
