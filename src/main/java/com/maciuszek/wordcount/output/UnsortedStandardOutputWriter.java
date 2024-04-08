@@ -5,7 +5,7 @@ import com.maciuszek.wordcount.output.formatter.Formatter;
 import org.springframework.stereotype.Component;
 
 /**
- * Write sorted data to standard output
+ * Write unsorted data to standard output
  */
 @Component
 public class UnsortedStandardOutputWriter extends StandardOutputWriter {
