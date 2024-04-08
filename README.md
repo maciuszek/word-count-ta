@@ -27,7 +27,7 @@ com.maciuszek/wordcount:0.0.1-SNAPSHOT
 ```
 
 ### More Info
-* To enable full debug logging run the jvm with -Dlogging.level.com.maciuszek.wordcount=DEBUG
+* To enable full debug logging run the jvm with `-Dlogging.level.com.maciuszek.wordcount=DEBUG`
 * The Makefile has a help page. Run `make help` or just `make`
 
 ### TODO
