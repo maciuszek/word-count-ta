@@ -17,12 +17,11 @@ public class BasicCountService implements CountService<Flux<WordCount>, Flux<Str
                 .doOnNext(word -> wordCountMap.compute(
                         word,
                         (key, val) -> (val == null) ? 1 : val + 1
-                )) // since this is unmanaged and a potentially infinite vertical growth of memory, for production instead of one thenMany, we would probably want to flush the hashmap periodically to a database (one that supports both horizontal scaling and reactive connectivity, e.g. mongo) by pushing new or incrementing existing counts, then consolidate the data in the database as a new reactive stream
-                .thenMany(Flux.fromStream(() -> {
-                    // consolidate the populated hashmap into stream of WordCount objects and return for a new flux
-                    return wordCountMap.entrySet().stream()
-                            .map(entrySet -> new WordCount(entrySet.getKey(), entrySet.getValue()));
-                }));
+                )) // since this implies potentially infinite vertical growth of memory, for production instead of one thenMany, we would probably want to flush the hashmap periodically to a key-value database (one that supports reactive connectivity and can be scaled horizontally) then consolidate as a reactive stream from the database
+                .thenMany(Flux.fromStream(() ->
+                    wordCountMap.entrySet().stream()
+                            .map(entrySet -> new WordCount(entrySet.getKey(), entrySet.getValue())) // consolidate the populated hashmap into stream of WordCount objects and return for a new flux
+                ));
     }
 
     protected Flux<String> scrapeWords(String stringOfWords) {
