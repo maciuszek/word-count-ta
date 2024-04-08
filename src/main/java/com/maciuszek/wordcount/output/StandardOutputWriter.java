@@ -12,7 +12,7 @@ public abstract class StandardOutputWriter implements OutputWriter<Flux<WordCoun
 
     @Override
     public void write(Flux<WordCount> flux) {
-        flux.map(formatter::format)
+        flux.map(formatter::format) // format the data for printing
                 .subscribe(System.out::println);
     }
 

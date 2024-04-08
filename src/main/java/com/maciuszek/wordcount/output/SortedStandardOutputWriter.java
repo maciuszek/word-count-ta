@@ -21,7 +21,7 @@ public class SortedStandardOutputWriter extends StandardOutputWriter {
 
     @Override
     public void write(Flux<WordCount> flux) {
-        super.write(sorter.sort(flux));
+        super.write(sorter.sort(flux)); // sort the data before output
     }
 
 }

@@ -60,11 +60,13 @@ public class WordCountApplication {
 		log.debug("Starting word count for {}", Arrays.toString(args));
 		long startTime = System.currentTimeMillis();
 
+		// support for reading multiple files into a single stream
 		Flux<String> input = Flux.empty();
 		for (String arg : args) {
 			File file = fileService.load(arg);
 			input = Flux.merge(input, inputReader.read(file));
 		}
+
 		outputWriter.write(countService.count(input));
 
 		log.debug("Finished counting words in {} millis", System.currentTimeMillis() - startTime);
