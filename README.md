@@ -23,7 +23,7 @@ or if you have gnumake
 docker run --rm \
 -v ./src/test/resources/input.txt:/app/./src/test/resources/input.txt \
 -e ARGS='/app/./src/test/resources/input.txt' \
-com.maciuszek/wordcount:local
+com.maciuszek/wordcount:0.0.1-SNAPSHOT
 ```
 
 ### More Info

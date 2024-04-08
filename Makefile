@@ -1,6 +1,6 @@
 REGISTRY = com.maciuszek
 APP_NAME = wordcount
-SHORT_SHA = local
+TAG = 0.0.1-SNAPSHOT
 
 default: help
 .PHONY: jar image help
@@ -12,7 +12,7 @@ jar: ## Build the jar
 image: jar ## Build the image
 	@echo "Building Docker image..."
 	docker build \
-		-t ${REGISTRY}/${APP_NAME}:${SHORT_SHA} \
+		-t ${REGISTRY}/${APP_NAME}:${TAG} \
 		.
 
 help: ## Display available make targets
