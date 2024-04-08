@@ -34,4 +34,5 @@ com.maciuszek/wordcount:0.0.1-SNAPSHOT
 An alternative faster and more efficient sorting implementation is being developed https://github.com/maciuszek/word-count-ta/tree/active_sort 
 
 ### Todo
-Setup GitHub Actions for CI and push to Docker Hub
+* For CI setup GitHub Actions to run tests
+* For CI setup GitHub Actions to push to Docker Hub
