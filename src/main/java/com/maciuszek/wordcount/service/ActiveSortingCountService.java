@@ -6,12 +6,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Active sort counter
  *
- * @implNote consistent output for data with the same word distribution but in different order is not ensured
- * @deprecated the sorting algorithm is flawed {@link BasicCountService} should be used instead until this is fixed
+ * @implNote consistent output for data with the same word frequency but in different order is not ensured
+ * @deprecated the sorting doesn't meet all business cases {@link BasicCountService} should be used instead
  */
 @Deprecated(since = "0.0.1-SNAPSHOT")
 @Service
@@ -23,14 +24,21 @@ public class ActiveSortingCountService implements CountService<Flux<WordCount>, 
         WordCountNode next;
         WordCountNode prev;
 
+        boolean frequencyHead = false;
+
         WordCountNode(String word) {
             super(word, 0);
+        }
+
+        WordCountNode(boolean frequencyHead, int count) {
+            super("", count);
+            this.frequencyHead = frequencyHead;
         }
 
     }
 
     public Flux<WordCount> count(Flux<String> stream) {
-        // count words using hash key collision in hashmap and actively sort the order of a linked list of references to the map using some kind of O(1) lfu algorithm derived/inspired by starring at http://dhruvbird.com/lfu.pdf for a few minutes
+        // count words using hash key collision in hashmap and actively sort the order of a linked list of references to the map using some kind of O(1) lfu algorithm derived/inspired by http://dhruvbird.com/lfu.pdf
         Map<String, WordCountNode> wordMap = new HashMap<>();
         Map<Integer, WordCountNode> wordFrequencyMap = new HashMap<>();
 
@@ -38,7 +46,6 @@ public class ActiveSortingCountService implements CountService<Flux<WordCount>, 
         WordCountNode tail = new WordCountNode();
         head.next = tail;
         tail.prev = head;
-        wordMap.put("", head);
 
         return stream.flatMap(this::scrapeWords)
                 .doOnNext(word -> {
@@ -58,9 +65,17 @@ public class ActiveSortingCountService implements CountService<Flux<WordCount>, 
                     int newFrequency = wordNode.getCount() + 1;
                     wordNode.setCount(newFrequency);
 
-                    WordCountNode nodeMatchingFrequency = wordFrequencyMap.get(newFrequency);
-                    if (nodeMatchingFrequency == null) {
-                        nodeMatchingFrequency = head; // use head if none exist to be inserted at the top of the list
+                    WordCountNode frequencyHead = wordFrequencyMap.get(newFrequency);
+                    if (frequencyHead == null) {
+                        frequencyHead = new WordCountNode(true, newFrequency);
+
+                        frequencyHead.next = head.next;
+                        frequencyHead.prev = head;
+
+                        head.next.prev = frequencyHead;
+                        head.next = frequencyHead;
+
+                        wordFrequencyMap.put(wordNode.getCount(), frequencyHead);
                     }
 
                     // remove wordNode from list
@@ -68,25 +83,25 @@ public class ActiveSortingCountService implements CountService<Flux<WordCount>, 
                     wordNode.next.prev = wordNode.prev;
 
                     // insert workNode to new position in list
-                    wordNode.next = nodeMatchingFrequency.next;
-                    wordNode.prev = nodeMatchingFrequency;
-                    nodeMatchingFrequency.next.prev = wordNode;
-                    nodeMatchingFrequency.next = wordNode;
-
-                    wordFrequencyMap.put(wordNode.getCount(), wordNode); // add latest word to act reference to the last element for the given frequency in the sorted linked list
-                }) // since this is unmanaged and potentially infinite vertical growth of memory, for production instead of one thenMany, we would probably want to flush the hashmap periodically to a database (one that can be scaled horizontally) then consolidate from the database. allowing a bigger in-memory map will result in a faster processing
+                    wordNode.next = frequencyHead.next;
+                    wordNode.prev = frequencyHead;
+                    frequencyHead.next.prev = wordNode;
+                    frequencyHead.next = wordNode;
+                }) // since this implies potentially infinite vertical growth of memory, instead of a hashmap for wordMap we would probably want to use a key-value database (one that supports reactive connectivity and can be scaled horizontally) then consolidate as a reactive stream from the database
                 .thenMany(Flux.fromStream(() -> {
-                    // consolidate the created hashmap into list of formatted strings using the hopefully sorted linked list and capture a stream of the list as a new flux
-                    List<WordCount> values = new ArrayList<>();
+                    // consolidate the created hashmap into a stream derived from the hopefully sorted linked list and capture it as a new flux
+                    Stream.Builder<WordCount> streamBuilder = Stream.builder();
 
-                    // at this point the linked list are already sorted started from head
+                    // at this point the linked list are already sorted starting from head
                     WordCountNode current = head.next;
                     while (current != tail) {
-                        values.add(current);
+                        if (!current.frequencyHead) {
+                            streamBuilder.add(current);
+                        }
                         current = current.next;
                     }
 
-                    return values.stream(); // return sorted stream
+                    return streamBuilder.build();
                 }));
     }
 
