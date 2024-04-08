@@ -3,7 +3,7 @@
 File word count to stdout implementation with Spring in a reactive programming paradigm. Structured with extensibility for alternative data ingress/egress and non-reactive implementations.
 
 ### Dependencies
-* JDK 17
+* jdk17
 * gnumake (optional)
 * docker and an active daemon (optional)
 
