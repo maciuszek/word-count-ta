@@ -7,8 +7,14 @@ import reactor.core.publisher.Flux;
 
 import java.util.*;
 
+/**
+ * Prototype active sorting
+ *
+ * @deprecated consistent output is not ensured and the sorting algorithm is flawed {@link BasicCountService} should be used instead
+ */
+@Deprecated
 @Service
-public class WordCountService implements CountService<Flux<WordCount>, Flux<String>> {
+public class ActiveSortingCountService implements CountService<Flux<WordCount>, Flux<String>> {
 
     @NoArgsConstructor
     private static class WordCountNode extends WordCount {
@@ -17,7 +23,7 @@ public class WordCountService implements CountService<Flux<WordCount>, Flux<Stri
         WordCountNode prev;
 
         WordCountNode(String word) {
-            super(word);
+            super(word, 0);
         }
 
     }
@@ -48,8 +54,8 @@ public class WordCountService implements CountService<Flux<WordCount>, Flux<Stri
                         wordMap.put(word, wordNode);
                     }
 
-                    int newFrequency = wordNode.getFrequency() + 1;
-                    wordNode.setFrequency(newFrequency);
+                    int newFrequency = wordNode.getCount() + 1;
+                    wordNode.setCount(newFrequency);
 
                     WordCountNode nodeMatchingFrequency = wordFrequencyMap.get(newFrequency);
                     if (nodeMatchingFrequency == null) {
@@ -66,7 +72,7 @@ public class WordCountService implements CountService<Flux<WordCount>, Flux<Stri
                     nodeMatchingFrequency.next.prev = wordNode;
                     nodeMatchingFrequency.next = wordNode;
 
-                    wordFrequencyMap.put(wordNode.getFrequency(), wordNode); // add latest word to act reference to the last element for the given frequency in the sorted linked list
+                    wordFrequencyMap.put(wordNode.getCount(), wordNode); // add latest word to act reference to the last element for the given frequency in the sorted linked list
                 }) // since this is unmanaged and potentially infinite vertical growth of memory, for production instead of one thenMany, we would probably want to flush the hashmap periodically to a database (one that can be scaled horizontally) then consolidate from the database. allowing a bigger in-memory map will result in a faster processing
                 .thenMany(Flux.fromStream(() -> {
                     // consolidate the created hashmap into list of formatted strings using the hopefully sorted linked list and capture a stream of the list as a new flux

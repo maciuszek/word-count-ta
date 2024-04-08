@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: wordcount
+  main:
+    banner-mode: off
+    log-startup-info: false
+
+wordcount.sorted: true

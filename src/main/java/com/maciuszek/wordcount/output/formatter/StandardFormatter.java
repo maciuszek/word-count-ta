@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class StandardFormatter implements Formatter<String, WordCount> {
 
+    @Override
     public String format(WordCount wordCount) {
-        return String.format("%s: %s", wordCount.getWord(), wordCount.getFrequency());
+        return String.format("%s: %s", wordCount.getWord(), wordCount.getCount());
     }
 
 }

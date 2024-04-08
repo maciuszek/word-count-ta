@@ -13,7 +13,7 @@ or if you have gnumake
 `make jar`
 
 ### Run Jar
-`java -jar target/wordcount-*-SNAPSHOT.jar ./src/test/resources/input.txt ./src/test/resources/input2.txt`
+`java -jar target/wordcount-*-SNAPSHOT.jar ./src/test/resources/input.txt`
 
 ### Build Container (requires optional dependencies)
 `make image`
@@ -22,8 +22,7 @@ or if you have gnumake
 ```
 docker run --rm \
 -v ./src/test/resources/input.txt:/app/./src/test/resources/input.txt \
--v ./src/test/resources/input2.txt:/app/./src/test/resources/input2.txt \
--e ARGS='/app/./src/test/resources/input.txt /app/./src/test/resources/input2.txt' \
+-e ARGS='/app/./src/test/resources/input.txt' \
 com.maciuszek/wordcount:local
 ```
 
