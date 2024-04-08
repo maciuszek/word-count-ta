@@ -5,4 +5,4 @@ spring:
     banner-mode: off
     log-startup-info: false
 
-wordcount.sorted: true
+wordcount.sorted: active

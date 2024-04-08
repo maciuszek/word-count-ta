@@ -6,6 +6,7 @@ import com.maciuszek.wordcount.input.InputReader;
 import com.maciuszek.wordcount.output.OutputWriter;
 import com.maciuszek.wordcount.output.SortedStandardOutputWriter;
 import com.maciuszek.wordcount.output.UnsortedStandardOutputWriter;
+import com.maciuszek.wordcount.service.ActiveSortingCountService;
 import com.maciuszek.wordcount.service.CountService;
 import com.maciuszek.wordcount.service.BasicCountService;
 import com.maciuszek.wordcount.service.FileService;
@@ -32,6 +33,16 @@ public class WordCountApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WordCountApplication.class, args);
+	}
+
+
+	@ConditionalOnProperty(name = "wordcount.sorted", havingValue = "active")
+	@Bean
+	CommandLineRunner activeSortCounter(FileService fileService,
+									FileInputReader fileInputReader,
+									ActiveSortingCountService activeSortingCountService,
+									UnsortedStandardOutputWriter unsortedStandardOutputWriter) {
+		return args -> run(args, fileService, fileInputReader, activeSortingCountService, unsortedStandardOutputWriter);
 	}
 
 	@ConditionalOnProperty(name = "wordcount.sorted", havingValue = "true")
