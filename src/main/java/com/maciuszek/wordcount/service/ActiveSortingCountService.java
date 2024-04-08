@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @deprecated consistent output is not ensured and the sorting algorithm is flawed {@link BasicCountService} should be used instead
  */
-@Deprecated
+@Deprecated(since = "0.0.1-SNAPSHOT")
 @Service
 public class ActiveSortingCountService implements CountService<Flux<WordCount>, Flux<String>> {
 

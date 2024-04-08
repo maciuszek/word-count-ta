@@ -52,6 +52,9 @@ public class WordCountApplication {
 		return args -> run(args, fileService, fileInputReader, basicCountService, unsortedStandardOutputWriter);
 	}
 
+	// provision the count workflow engine in
+	// 3 phases: read, count, write
+	// 2 sub-phases: sort, format
 	private void run(String[] args,
 					 FileService fileService,
 					 InputReader<Flux<String>, File> inputReader,
