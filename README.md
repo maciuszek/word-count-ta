@@ -23,7 +23,7 @@ or if you have gnumake
 docker run --rm \
 -v ./src/test/resources/input.txt:/app/./src/test/resources/input.txt \
 -e ARGS='/app/./src/test/resources/input.txt' \
-com.maciuszek/wordcount:0.0.1-SNAPSHOT
+com.maciuszek/wordcount:0.0.2-SNAPSHOT
 ```
 
 ### More Info
@@ -31,7 +31,7 @@ com.maciuszek/wordcount:0.0.1-SNAPSHOT
 * The Makefile has a help page. Run `make help` or just `make`
 
 ### Experimental
-An alternative faster and more efficient sorting implementation (based around an O(1) lfu algorithm) is in a beta stage (working but not adhering to all business cases): https://github.com/maciuszek/word-count-ta/tree/active_sort
+An alternative more efficient sorting implementation (based around an O(1) lfu algorithm) is in a beta stage: https://github.com/maciuszek/word-count-ta/tree/active_sort
 
 ### Todo
 * For CI setup GitHub Actions to run tests

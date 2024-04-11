@@ -34,7 +34,7 @@ class WordCountApplicationTests {
 	public CommandLineRunner commandLineRunner;
 
 	@SpyBean
-	@Qualifier("naturalOrderSorter")
+	@Qualifier("descendingFrequencySorter")
 	private Sorter<Flux<WordCount>> sorter;
 
 	@Test
@@ -90,7 +90,7 @@ class WordCountApplicationTests {
 		ResultCaptor<Flux<WordCount>> resultCaptor2 = new ResultCaptor<>();
 		doAnswer(resultCaptor2).when(sorter).sort(any());
 
-		commandLineRunner.run("./src/test/resources/tupni.txt");
+		commandLineRunner.run("./src/test/resources/tupni.txt"); // generated with tac
 
 		assertEquals(resultCaptor1.getResult().collectList().block().toString(), resultCaptor2.getResult().collectList().block().toString());
 	}

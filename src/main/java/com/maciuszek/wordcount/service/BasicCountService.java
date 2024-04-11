@@ -6,6 +6,13 @@ import reactor.core.publisher.Flux;
 
 import java.util.*;
 
+/**
+ * Naive counter
+ *
+ * @implNote requires an independent sorter e.g. {@link com.maciuszek.wordcount.output.sorter.DescendingFrequencySorter}
+ * @deprecated for {@link ActiveSortingCountService} which should be more efficient
+ */
+@Deprecated(since = "0.0.2-SNAPSHOT")
 @Service
 public class BasicCountService implements CountService<Flux<WordCount>, Flux<String>> {
 

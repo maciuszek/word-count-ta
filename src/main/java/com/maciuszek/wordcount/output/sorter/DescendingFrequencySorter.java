@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 @Component
 public class DescendingFrequencySorter implements Sorter<Flux<WordCount>> {
@@ -23,19 +22,18 @@ public class DescendingFrequencySorter implements Sorter<Flux<WordCount>> {
             List<WordCount> wordCountList = wordCountFequencyMap.getOrDefault(key, new ArrayList<>());
             wordCountList.add(wordCount);
             wordCountFequencyMap.put(key, wordCountList);
-        }).thenMany(Flux.fromStream(() -> {
+        }).thenMany(Flux.create(sink -> {
             // once all the data has been consolidated into a hashmap, derive a new flux stream of WordCount objects sorted by frequency
             List<Integer> frequencies = new ArrayList<>(wordCountFequencyMap.keySet());
             frequencies.sort(Collections.reverseOrder()); // sort the list of frequencies in descending order
 
-            Stream<WordCount> stream = Stream.empty();
             for (Integer frequency : frequencies) {
                 List<WordCount> wordCountList = wordCountFequencyMap.get(frequency);
                 wordCountList.sort(Comparator.comparing(WordCount::getWord)); // per frequency sort the WordCounts alphabetically based on the word to ensure consistency for data with the same word distribution but in different order
-                stream = Stream.concat(stream, wordCountList.stream());
+                wordCountList.forEach(sink::next);
             }
 
-            return stream;
+            sink.complete();
         }));
     }
 

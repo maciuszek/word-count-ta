@@ -1,6 +1,6 @@
 REGISTRY = com.maciuszek
 APP_NAME = wordcount
-TAG = 0.0.1-SNAPSHOT
+TAG = 0.0.2-SNAPSHOT
 
 default: help
 .PHONY: jar image help

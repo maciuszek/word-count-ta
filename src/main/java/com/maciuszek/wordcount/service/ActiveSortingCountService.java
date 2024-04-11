@@ -1,36 +1,29 @@
 package com.maciuszek.wordcount.service;
 
 import com.maciuszek.wordcount.domain.WordCount;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
-import java.util.stream.Stream;
 
-/**
- * Active sort counter
- *
- * @implNote consistent output for data with the same word frequency but in different order is not ensured
- * @deprecated the sorting doesn't meet all business cases {@link BasicCountService} should be used instead
- */
-@Deprecated(since = "0.0.1-SNAPSHOT")
 @Service
 public class ActiveSortingCountService extends BasicCountService {
 
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static class WordCountNode extends WordCount {
 
-        WordCountNode next;
-        WordCountNode prev;
+        private WordCountNode next;
+        private WordCountNode prev;
 
-        boolean frequencyHead = false;
+        private boolean frequencyHead = false;
 
-        WordCountNode(String word) {
+        private WordCountNode(String word) {
             super(word, 0);
         }
 
-        WordCountNode(boolean frequencyHead, int count) {
+        private WordCountNode(boolean frequencyHead, int count) {
             super("", count);
             this.frequencyHead = frequencyHead;
         }
@@ -52,12 +45,13 @@ public class ActiveSortingCountService extends BasicCountService {
         // the database once all the data in the stream has been written
 
         Map<String, WordCountNode> wordMap = new HashMap<>();
-        Map<Integer, WordCountNode> wordFrequencyMap = new HashMap<>();
+        Map<Integer, WordCountNode> wordFrequencyMap = new LinkedHashMap<>();
 
         WordCountNode head = new WordCountNode();
-        WordCountNode tail = new WordCountNode();
+        WordCountNode tail = new WordCountNode(true, 0); // make tail a frequency had to optimize stream building
         head.next = tail;
         tail.prev = head;
+        wordFrequencyMap.put(0, tail);
 
         return stream.flatMap(this::scrapeWords)
                 .doOnNext(word -> {
@@ -65,39 +59,32 @@ public class ActiveSortingCountService extends BasicCountService {
                     if (wordNode == null) {
                         // if a word isn't already in the map, add it
                         wordNode = new WordCountNode(word);
-
-                        // it's probably faster having next and prev set, than including conditions for null checking per iteration, so redundantly insert wordNode to end of list
-                        wordNode.prev = tail.prev;
-                        wordNode.next = tail;
-                        tail.prev.next = wordNode;
-                        tail.prev = wordNode;
-
                         wordMap.put(word, wordNode);
+                    } else {
+                        // remove wordNode from list since it will be re-added in new position
+                        wordNode.prev.next = wordNode.next;
+                        wordNode.next.prev = wordNode.prev;
                     }
 
                     int newFrequency = wordNode.getCount() + 1;
                     wordNode.setCount(newFrequency);
 
-                    WordCountNode frequencyHead = wordFrequencyMap.get(newFrequency);
-                    if (frequencyHead == null) {
+                    // todo get and nullcheck may be faster
+                    WordCountNode frequencyHead = wordFrequencyMap.computeIfAbsent(newFrequency, key -> {
                         // if the frequency hasn't been previously added create a new head for the current frequency and add it to the top of the linked list
                         // always adding to the top this lists works since the frequencies will grow in linear order
                         // note: there will be a frequency head for 1 - highest frequency, even if there are no words anymore for the specific frequency
 
-                        frequencyHead = new WordCountNode(true, newFrequency);
+                        WordCountNode newFrequencyHead = new WordCountNode(true, key);
 
-                        frequencyHead.next = head.next;
-                        frequencyHead.prev = head;
+                        newFrequencyHead.next = head.next;
+                        newFrequencyHead.prev = head;
 
-                        head.next.prev = frequencyHead;
-                        head.next = frequencyHead;
+                        head.next.prev = newFrequencyHead;
+                        head.next = newFrequencyHead;
 
-                        wordFrequencyMap.put(wordNode.getCount(), frequencyHead); // add the frequency head to the list for future reference/index
-                    }
-
-                    // remove wordNode from list
-                    wordNode.prev.next = wordNode.next;
-                    wordNode.next.prev = wordNode.prev;
+                        return newFrequencyHead;
+                    });
 
                     // insert workNode a new position in the list based on the new frequency
                     wordNode.next = frequencyHead.next;
@@ -105,19 +92,23 @@ public class ActiveSortingCountService extends BasicCountService {
                     frequencyHead.next.prev = wordNode;
                     frequencyHead.next = wordNode;
                 })
-                .thenMany(Flux.fromStream(() -> {
+                .thenMany(Flux.create(sink -> {
                     // once all the data in the stream has been consolidated, use the linked list to build a stream of WordCount elements in sorted order and return it as a new flux
-                    Stream.Builder<WordCount> streamBuilder = Stream.builder();
+                    List<WordCountNode> frequencyHeadList = new ArrayList<>(wordFrequencyMap.values()); // assumes natural order of wordFrequencyMap which is deterministic by LinkedHashMap
 
-                    WordCountNode current = head.next;
-                    while (current != tail) {
-                        if (!current.frequencyHead) {
-                            streamBuilder.add(current);
+                    for (int i = frequencyHeadList.size() - 1; i > 0; i--) {
+                        // sort alphabetically per frequency to ensure consistency for data with the same word distribution but in different order. do this after the data has been counted otherwise we would introduce a '* n' in time complexity
+                        TreeSet<WordCount> alphabeticallySortedSet = new TreeSet<>(Comparator.comparing(WordCount::getWord));
+
+                        WordCountNode current = frequencyHeadList.get(i);
+                        while (!(current = current.next).frequencyHead) {
+                            alphabeticallySortedSet.add(current);
                         }
-                        current = current.next;
+
+                        alphabeticallySortedSet.forEach(sink::next);
                     }
 
-                    return streamBuilder.build();
+                    sink.complete();
                 }));
     }
 

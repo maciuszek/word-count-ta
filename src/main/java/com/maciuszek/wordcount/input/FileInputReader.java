@@ -19,7 +19,7 @@ public class FileInputReader implements InputReader<Flux<String>, File> {
                 reader -> Flux.fromStream(new BufferedReader(reader).lines()),
                 reader -> {
                     try {
-                        reader.close(); // todo see if this potential blocking can be avoided
+                        reader.close(); // this should be fine since the file stream itself is non-blocking and once the complete file is processed the application runtime is complete
                     } catch (IOException e) {
                         throw new FileException(FileException.Type.ERROR_CLOSING_FILE_READER, e);
                     }

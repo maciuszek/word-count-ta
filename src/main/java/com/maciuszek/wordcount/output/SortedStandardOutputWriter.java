@@ -1,5 +1,6 @@
 package com.maciuszek.wordcount.output;
 
+import com.maciuszek.wordcount.configuration.WordCountConfiguration;
 import com.maciuszek.wordcount.domain.WordCount;
 import com.maciuszek.wordcount.output.formatter.Formatter;
 import com.maciuszek.wordcount.output.sorter.DescendingFrequencySorter;
@@ -15,8 +16,10 @@ public class SortedStandardOutputWriter extends StandardOutputWriter {
 
     private final Sorter<Flux<WordCount>> sorter;
 
-    public SortedStandardOutputWriter(DescendingFrequencySorter descendingFrequencySorter, Formatter<String, WordCount> formatter) {
-        super(formatter);
+    public SortedStandardOutputWriter(DescendingFrequencySorter descendingFrequencySorter,
+                                      WordCountConfiguration wordCountConfiguration,
+                                      Formatter<String, WordCount> formatter) {
+        super(wordCountConfiguration, formatter);
         this.sorter = descendingFrequencySorter;
     }
 
