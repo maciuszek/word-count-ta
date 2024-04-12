@@ -1,8 +1,6 @@
 ### Description
 
 File word count to stdout implementation with Spring in a reactive programming paradigm. Structured with extensibility for alternative data ingress/egress and non-reactive implementations.
-Note: supports word counting of multiple files by add more subsequent command line arguments
-Note: doesn't natively support reading for stdin but can be overcome with process substitution https://tldp.org/LDP/abs/html/process-sub.html
 
 ### Build Dependencies
 * jdk17
@@ -29,6 +27,8 @@ com.maciuszek/wordcount:0.0.2-SNAPSHOT
 ```
 
 ### More Info
+* Supports counting words from multiple files through additional command line arguments e.g. `java -jar target/wordcount-*-SNAPSHOT.jar ./src/test/resources/input.txt ./src/test/resources/tupni.txt`
+* Doesn't natively support reading for stdin but this can be overcome with process substitution https://tldp.org/LDP/abs/html/process-sub.html
 * To enable full debug logging run the jvm with `-Dlogging.level.com.maciuszek.wordcount=DEBUG`
 * The Makefile has a help page. Run `make help` or just `make`
 
