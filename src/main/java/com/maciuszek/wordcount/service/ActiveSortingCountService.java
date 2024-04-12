@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import java.util.*;
 
 @Service
-public class ActiveSortingCountService extends BasicCountService {
+public class ActiveSortingCountService implements CountService<Flux<WordCount>, Flux<String>> {
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     private static class WordCountNode extends WordCount {

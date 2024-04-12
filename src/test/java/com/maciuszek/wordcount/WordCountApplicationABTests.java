@@ -57,7 +57,7 @@ class WordCountApplicationABTests {
                 .run(context -> {
                     assertAll(
                             () -> assertThat(context).hasSingleBean(CommandLineRunner.class),
-                            () -> assertThat(context).hasBean("activeSortCounter")
+                            () -> assertThat(context).hasBean("activelySortedCounter")
                     );
 
                     CommandLineRunner commandLineRunner = context.getBean(CommandLineRunner.class);

@@ -8,7 +8,7 @@ import com.maciuszek.wordcount.output.SortedStandardOutputWriter;
 import com.maciuszek.wordcount.output.UnsortedStandardOutputWriter;
 import com.maciuszek.wordcount.service.ActiveSortingCountService;
 import com.maciuszek.wordcount.service.CountService;
-import com.maciuszek.wordcount.service.BasicCountService;
+import com.maciuszek.wordcount.service.SimpleCountService;
 import com.maciuszek.wordcount.service.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -36,9 +36,10 @@ public class WordCountApplication {
 	}
 
 
+	// a less naive counter workflow
 	@ConditionalOnProperty(name = "wordcount.sorted", havingValue = "active")
 	@Bean
-	CommandLineRunner activeSortCounter(FileService fileService,
+	CommandLineRunner activelySortedCounter(FileService fileService,
 									FileInputReader fileInputReader,
 									ActiveSortingCountService activeSortingCountService,
 									UnsortedStandardOutputWriter unsortedStandardOutputWriter) {
@@ -49,7 +50,7 @@ public class WordCountApplication {
 	@Bean
 	CommandLineRunner sortedCounter(FileService fileService,
 									FileInputReader fileInputReader,
-									BasicCountService basicCountService,
+									SimpleCountService basicCountService,
 									SortedStandardOutputWriter sortedStandardOutputWriter) {
 		return args -> run(args, fileService, fileInputReader, basicCountService, sortedStandardOutputWriter);
 	}
@@ -58,7 +59,7 @@ public class WordCountApplication {
 	@Bean
 	CommandLineRunner counter(FileService fileService,
 							  FileInputReader fileInputReader,
-							  BasicCountService basicCountService,
+							  SimpleCountService basicCountService,
 							  UnsortedStandardOutputWriter unsortedStandardOutputWriter) {
 		return args -> run(args, fileService, fileInputReader, basicCountService, unsortedStandardOutputWriter);
 	}

@@ -1,6 +1,8 @@
 ### Description
 
 File word count to stdout implementation with Spring in a reactive programming paradigm. Structured with extensibility for alternative data ingress/egress and non-reactive implementations.
+Note: supports word counting of multiple files by add more subsequent command line arguments
+Note: doesn't natively support reading for stdin but can be overcome with process substitution https://tldp.org/LDP/abs/html/process-sub.html
 
 ### Build Dependencies
 * jdk17
@@ -8,7 +10,7 @@ File word count to stdout implementation with Spring in a reactive programming p
 * docker and an active daemon (optional)
 
 ### Build The App As A Jar
-`./mvnw package`
+`./mvnw -U clean package`
 or if you have gnumake
 `make jar`
 

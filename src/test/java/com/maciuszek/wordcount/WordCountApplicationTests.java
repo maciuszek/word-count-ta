@@ -35,7 +35,7 @@ class WordCountApplicationTests {
 	public CommandLineRunner commandLineRunner;
 
 	@SpyBean
-	@Qualifier("descendingFrequencySorter")
+	@Qualifier("naturalOrderSorter")
 	private Sorter<Flux<WordCount>> sorter;
 
 	@Test

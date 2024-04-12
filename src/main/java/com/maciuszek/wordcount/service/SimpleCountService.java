@@ -7,14 +7,14 @@ import reactor.core.publisher.Flux;
 import java.util.*;
 
 /**
- * Naive counter
+ * Simple counter
  *
- * @implNote requires an independent sorter e.g. {@link com.maciuszek.wordcount.output.sorter.DescendingFrequencySorter}
+ * @implNote the count results are not sorted
  * @deprecated for {@link ActiveSortingCountService} which should be more efficient
  */
 @Deprecated(since = "0.0.2-SNAPSHOT")
 @Service
-public class BasicCountService implements CountService<Flux<WordCount>, Flux<String>> {
+public class SimpleCountService implements CountService<Flux<WordCount>, Flux<String>> {
 
     @Override
     public Flux<WordCount> count(Flux<String> flux) {
@@ -34,17 +34,6 @@ public class BasicCountService implements CountService<Flux<WordCount>, Flux<Str
                     wordCountMap.entrySet().stream()
                             .map(entrySet -> new WordCount(entrySet.getKey(), entrySet.getValue())) // once the data has been consolidated into a hashmap return a stream entries mapped to WordCount objects as a new flux
                 ));
-    }
-
-    protected Flux<String> scrapeWords(String stringOfWords) {
-        return Flux.fromArray(
-                format(stringOfWords)
-                        .split("[^\\w']+") // filter alphanumeric words
-        );
-    }
-
-    private String format(String stringOfWords) {
-        return stringOfWords.toLowerCase(); // assume word count shouldn't be case-sensitive
     }
 
 }

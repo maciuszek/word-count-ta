@@ -30,14 +30,14 @@ import static org.mockito.Mockito.reset;
 
 @ExtendWith({SpringExtension.class, OutputCaptureExtension.class})
 @ContextConfiguration(classes = { WordCountApplication.class }, initializers = ConfigDataApplicationContextInitializer.class)
-@TestPropertySource(properties = {"wordcount.sorted=active"})
-class WordCountApplicationActiveSortingTests {
+@TestPropertySource(properties = {"wordcount.sorted=true"})
+class WordCountApplicationNaiveWorkflowTests {
 
 	@Autowired
 	public CommandLineRunner commandLineRunner;
 
 	@SpyBean
-	@Qualifier("naturalOrderSorter")
+	@Qualifier("descendingFrequencySorter")
 	private Sorter<Flux<WordCount>> sorter;
 
 	@Test
