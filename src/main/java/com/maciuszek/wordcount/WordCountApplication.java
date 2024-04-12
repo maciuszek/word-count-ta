@@ -40,9 +40,9 @@ public class WordCountApplication {
 	@ConditionalOnProperty(name = "wordcount.sorted", havingValue = "active")
 	@Bean
 	CommandLineRunner activelySortedCounter(FileService fileService,
-									FileInputReader fileInputReader,
-									ActiveSortingCountService activeSortingCountService,
-									UnsortedStandardOutputWriter unsortedStandardOutputWriter) {
+											FileInputReader fileInputReader,
+											ActiveSortingCountService activeSortingCountService,
+											UnsortedStandardOutputWriter unsortedStandardOutputWriter) {
 		return args -> run(args, fileService, fileInputReader, activeSortingCountService, unsortedStandardOutputWriter);
 	}
 
