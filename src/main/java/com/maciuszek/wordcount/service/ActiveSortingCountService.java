@@ -44,8 +44,8 @@ public class ActiveSortingCountService extends BasicCountService {
         // that supports reactive connectivity and can be scaled horizontally) and return a reactive stream from
         // the database once all the data in the stream has been written
 
-        Map<String, WordCountNode> wordMap = new HashMap<>();
-        Map<Integer, WordCountNode> wordFrequencyMap = new LinkedHashMap<>();
+        Map<String, WordCountNode> wordMap = new HashMap<>(); // store count of all words
+        Map<Integer, WordCountNode> wordFrequencyMap = new LinkedHashMap<>(); // store dummy node references for word counts
 
         WordCountNode head = new WordCountNode();
         WordCountNode tail = new WordCountNode(true, 0); // make tail a frequency had to optimize stream building
@@ -57,7 +57,7 @@ public class ActiveSortingCountService extends BasicCountService {
                 .doOnNext(word -> {
                     WordCountNode wordNode = wordMap.get(word);
                     if (wordNode == null) {
-                        // if a word isn't already in the map, add it
+                        // if a word isn't already in the map, add it with a count of 0
                         wordNode = new WordCountNode(word);
                         wordMap.put(word, wordNode);
                     } else {
@@ -66,25 +66,26 @@ public class ActiveSortingCountService extends BasicCountService {
                         wordNode.next.prev = wordNode.prev;
                     }
 
-                    int newFrequency = wordNode.getCount() + 1;
-                    wordNode.setCount(newFrequency);
+                    wordNode.setCount(wordNode.getCount() + 1); // update the word count
 
-                    // todo get and nullcheck may be faster
-                    WordCountNode frequencyHead = wordFrequencyMap.computeIfAbsent(newFrequency, key -> {
+                    // find a reference to the dummy node of the new count of the word
+                    // note: it seems faster to nullcheck than computeIfAbsent
+                    WordCountNode frequencyHead = wordFrequencyMap.get(wordNode.getCount());
+                    if (frequencyHead == null) {
                         // if the frequency hasn't been previously added create a new head for the current frequency and add it to the top of the linked list
                         // always adding to the top this lists works since the frequencies will grow in linear order
-                        // note: there will be a frequency head for 1 - highest frequency, even if there are no words anymore for the specific frequency
+                        // note: there will be a frequency head for every 0 - highest frequency, even if there are no words anymore for the specific frequency
 
-                        WordCountNode newFrequencyHead = new WordCountNode(true, key);
+                        frequencyHead = new WordCountNode(true, wordNode.getCount());
 
-                        newFrequencyHead.next = head.next;
-                        newFrequencyHead.prev = head;
+                        frequencyHead.next = head.next;
+                        frequencyHead.prev = head;
 
-                        head.next.prev = newFrequencyHead;
-                        head.next = newFrequencyHead;
+                        head.next.prev = frequencyHead;
+                        head.next = frequencyHead;
 
-                        return newFrequencyHead;
-                    });
+                        wordFrequencyMap.put(wordNode.getCount(), frequencyHead);
+                    }
 
                     // insert workNode a new position in the list based on the new frequency
                     wordNode.next = frequencyHead.next;
@@ -93,17 +94,27 @@ public class ActiveSortingCountService extends BasicCountService {
                     frequencyHead.next = wordNode;
                 })
                 .thenMany(Flux.create(sink -> {
-                    // once all the data in the stream has been consolidated, use the linked list to build a stream of WordCount elements in sorted order and return it as a new flux
+                    // once all the data in the flux stream has been consolidated, use the linked list to build a new flux stream of WordCount elements in sorted order
                     List<WordCountNode> frequencyHeadList = new ArrayList<>(wordFrequencyMap.values()); // assumes natural order of wordFrequencyMap which is deterministic by LinkedHashMap
 
                     for (int i = frequencyHeadList.size() - 1; i > 0; i--) {
-                        // sort alphabetically per frequency to ensure consistency for data with the same word distribution but in different order. do this after the data has been counted otherwise we would introduce a '* n' in time complexity
+                        WordCountNode current = frequencyHeadList.get(i).next;
+
+                        // optimized to skip redundant execution and object creation
+                        if (current.frequencyHead) {
+                            continue;
+                        }
+
+                        // sort alphabetically per frequency to ensure consistency for data with the same word distribution but in different order
+                        // use a TreeSet for red-black tree like O(logn) sorting
+                        // do this sorting after the data has been counted otherwise we would introduce a '* logn' time complexity instead of a '+ logn'
                         TreeSet<WordCount> alphabeticallySortedSet = new TreeSet<>(Comparator.comparing(WordCount::getWord));
 
-                        WordCountNode current = frequencyHeadList.get(i);
-                        while (!(current = current.next).frequencyHead) {
+                        // at this point we already know current is not a frequencyHead however it might be implied by compiler optimization and irrelevant technical debt
+                        do {
                             alphabeticallySortedSet.add(current);
-                        }
+                            current = current.next;
+                        } while (!current.frequencyHead);
 
                         alphabeticallySortedSet.forEach(sink::next);
                     }

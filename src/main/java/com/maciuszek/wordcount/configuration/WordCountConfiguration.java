@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class WordCountConfiguration {
 
-    private boolean dummy;
+    private boolean dummy; // no output
 
 }

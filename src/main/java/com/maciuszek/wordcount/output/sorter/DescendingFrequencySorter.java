@@ -23,7 +23,7 @@ public class DescendingFrequencySorter implements Sorter<Flux<WordCount>> {
             wordCountList.add(wordCount);
             wordCountFequencyMap.put(key, wordCountList);
         }).thenMany(Flux.create(sink -> {
-            // once all the data has been consolidated into a hashmap, derive a new flux stream of WordCount objects sorted by frequency
+            // once all the data in the flux stream has been consolidated into a hashmap, derive a new flux stream of WordCount objects sorted by frequency
             List<Integer> frequencies = new ArrayList<>(wordCountFequencyMap.keySet());
             frequencies.sort(Collections.reverseOrder()); // sort the list of frequencies in descending order
 

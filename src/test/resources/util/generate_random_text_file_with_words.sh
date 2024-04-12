@@ -6,5 +6,5 @@ OUTPUT="${OUTPUT:-generated_big_input.txt}"
 
 for i in {1..10}
 do 
-	shuf -n 1000000 /usr/share/dict/words | fmt -w 72 >> "$OUTPUT" # found https://gitlab.archlinux.org/archlinux/packaging/packages/words
+	shuf -n 1000000 /usr/share/dict/words | fmt -w 72 >> "$OUTPUT" # dictionary from https://gitlab.archlinux.org/archlinux/packaging/packages/words
 done

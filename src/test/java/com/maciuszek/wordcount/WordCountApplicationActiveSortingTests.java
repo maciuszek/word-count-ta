@@ -3,6 +3,7 @@ package com.maciuszek.wordcount;
 import com.maciuszek.wordcount.domain.WordCount;
 import com.maciuszek.wordcount.output.sorter.Sorter;
 import com.maciuszek.wordcount.testutil.ResultCaptor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ class WordCountApplicationActiveSortingTests {
 	private Sorter<Flux<WordCount>> sorter;
 
 	@Test
-	void expectedOutput(CapturedOutput capturedOutput) throws Exception {
+	@SneakyThrows
+	void expectedOutput(CapturedOutput capturedOutput) {
 		commandLineRunner.run("./src/test/resources/input.txt");
 		String expectedOutput = Files.readString(Paths.get(getClass().getClassLoader().getResource("output.txt").toURI()));
 		assertTrue(
@@ -66,7 +68,8 @@ class WordCountApplicationActiveSortingTests {
 
 	}
 	@Test
-	void correctSorting() throws Exception {
+	@SneakyThrows
+	void correctSorting() {
 		ResultCaptor<Flux<WordCount>> resultCaptor = new ResultCaptor<>();
 		doAnswer(resultCaptor).when(sorter).sort(any());
 
@@ -81,7 +84,8 @@ class WordCountApplicationActiveSortingTests {
 	}
 
 	@Test
-	void consistentOrder() throws Exception {
+	@SneakyThrows
+	void consistentOrder() {
 		ResultCaptor<Flux<WordCount>> resultCaptor1 = new ResultCaptor<>();
 		doAnswer(resultCaptor1).when(sorter).sort(any());
 

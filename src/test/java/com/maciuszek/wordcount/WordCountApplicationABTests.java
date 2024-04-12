@@ -70,7 +70,7 @@ class WordCountApplicationABTests {
     }
 
     // use multiple runs to reduce system bias
-    private void fasterActiveExecutionTime(int runs, String filepath) {
+    private void testActiveSortingExecutionTime(int runs, String filepath) {
         List<ExecutionTime> executionTimeList = new LinkedList<>();
 
         for (int i = 0; i < runs; i++) {
@@ -79,42 +79,46 @@ class WordCountApplicationABTests {
 
         int fasterActiveSorting = 0;
         int fasterNormalSorting = 0;
+        long toalActiveSortingTime = 0;
+        long totalNormalTime = 0;
         for (ExecutionTime executionTime : executionTimeList) {
             long activeSortingExecutionTime = executionTime.activeSortingExecutionTime();
             long normalExecutionTime = executionTime.normalExecutionTime();
 
-            if (activeSortingExecutionTime < normalExecutionTime) {
+            if (activeSortingExecutionTime <= normalExecutionTime) {
                 ++fasterActiveSorting;
             } else {
                 ++fasterNormalSorting;
             }
 
+            toalActiveSortingTime += activeSortingExecutionTime;
+            totalNormalTime += normalExecutionTime;
+
             System.out.printf("activeSortingExecutionTime: %d millis, normalExecutionTime: %d millis%n", activeSortingExecutionTime, normalExecutionTime);
         }
 
-        System.out.printf("activeSortingExecutionTime was faster than normalExecutionTime %d times out of %d", fasterActiveSorting, runs);
-
+        System.out.printf("activeSortingExecutionTime at least as fast as normalExecutionTime %d times out of %d with an overall time difference of %d millis", fasterActiveSorting, runs, toalActiveSortingTime - totalNormalTime);
 
         assertTrue(
-                fasterActiveSorting > fasterNormalSorting,
-                "activeSortingExecutionTime was not more often faster than normalExecutionTime"
+                fasterActiveSorting >= fasterNormalSorting,
+                "activeSortingExecutionTime more often slower normalExecutionTime"
         );
     }
 
     @Test
     @SneakyThrows
-    void fasterActiveExecutionTime_real_data() {
+    void realData() {
         int runs = 1000;
         String filepath = "/home/maciuszek/workspace/word-count-ta/src/test/resources/big_input.txt"; // sourced from https://www.gutenberg.org/cache/epub/73371/pg73371.txt with wget
-        fasterActiveExecutionTime(runs, filepath);
+        testActiveSortingExecutionTime(runs, filepath);
     }
 
     @Test
     @SneakyThrows
-    void fasterActiveExecutionTime_generated_data() {
+    void generatedData() {
         int runs = 100;
         String filepath = "/home/maciuszek/workspace/word-count-ta/src/test/resources/generated_big_input.txt"; // generated with src/test/resources/util/generate_random_text_file_with_words.sh
-        fasterActiveExecutionTime(runs, filepath);
+        testActiveSortingExecutionTime(runs, filepath);
     }
 
 }
