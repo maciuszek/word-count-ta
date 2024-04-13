@@ -2,6 +2,7 @@ package com.maciuszek.wordcount.exception;
 
 import lombok.Getter;
 
+// todo suppress errors unless in debug mode
 public class FileException extends RuntimeException {
 
     @Getter
@@ -9,7 +10,7 @@ public class FileException extends RuntimeException {
         // todo think about using external message sources
         DOES_NOT_EXIST("File does not exist"),
         CANNOT_READ("Cannot read the file"),
-        ERROR_CLOSING_FILE_READER("Error closing file");
+        WORD_TOO_BIG("File contains words exceeding maximum size");
 
         Type(String description) {
             this.description = description;
@@ -20,10 +21,6 @@ public class FileException extends RuntimeException {
 
     public FileException(Type type, String filepath) {
         super(String.format("%s: %s", type.getDescription(), filepath));
-    }
-
-    public FileException(Type type, Throwable throwable) {
-        super(type.getDescription(), throwable);
     }
 
 

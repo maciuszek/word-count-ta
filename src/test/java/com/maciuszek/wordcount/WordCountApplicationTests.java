@@ -3,15 +3,18 @@ package com.maciuszek.wordcount;
 import com.maciuszek.wordcount.domain.WordCount;
 import com.maciuszek.wordcount.output.sorter.Sorter;
 import com.maciuszek.wordcount.testutil.ResultCaptor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -33,10 +36,12 @@ class WordCountApplicationTests {
 	public CommandLineRunner commandLineRunner;
 
 	@SpyBean
+	@Qualifier("descendingFrequencySorter")
 	private Sorter<Flux<WordCount>> sorter;
 
 	@Test
-	void expectedOutput(CapturedOutput capturedOutput) throws Exception {
+	@SneakyThrows
+	void expectedOutput(CapturedOutput capturedOutput) {
 		commandLineRunner.run("./src/test/resources/input.txt");
 		String expectedOutput = Files.readString(Paths.get(getClass().getClassLoader().getResource("output.txt").toURI()));
 		assertTrue(
@@ -62,7 +67,8 @@ class WordCountApplicationTests {
 
 	}
 	@Test
-	void correctSorting() throws Exception {
+	@SneakyThrows
+	void correctSorting() {
 		ResultCaptor<Flux<WordCount>> resultCaptor = new ResultCaptor<>();
 		doAnswer(resultCaptor).when(sorter).sort(any());
 
@@ -77,7 +83,8 @@ class WordCountApplicationTests {
 	}
 
 	@Test
-	void consistentOrder() throws Exception {
+	@SneakyThrows
+	void consistentOrder() {
 		ResultCaptor<Flux<WordCount>> resultCaptor1 = new ResultCaptor<>();
 		doAnswer(resultCaptor1).when(sorter).sort(any());
 
@@ -88,7 +95,7 @@ class WordCountApplicationTests {
 		ResultCaptor<Flux<WordCount>> resultCaptor2 = new ResultCaptor<>();
 		doAnswer(resultCaptor2).when(sorter).sort(any());
 
-		commandLineRunner.run("./src/test/resources/tupni.txt");
+		commandLineRunner.run("./src/test/resources/tupni.txt"); // generated with tac
 
 		assertEquals(resultCaptor1.getResult().collectList().block().toString(), resultCaptor2.getResult().collectList().block().toString());
 	}
