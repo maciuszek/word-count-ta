@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -35,7 +36,7 @@ class WordCountApplicationTests {
 	public CommandLineRunner commandLineRunner;
 
 	@SpyBean
-	@Qualifier("naturalOrderSorter")
+	@Qualifier("descendingFrequencySorter")
 	private Sorter<Flux<WordCount>> sorter;
 
 	@Test

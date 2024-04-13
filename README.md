@@ -33,7 +33,7 @@ com.maciuszek/wordcount:0.0.2-SNAPSHOT
 * The Makefile has a help page. Run `make help` or just `make`
 
 ### Experimental
-An alternative more efficient sorting implementation (based around an O(1) lfu algorithm) is in a beta stage: https://github.com/maciuszek/word-count-ta/tree/active_sort
+An alternative more efficient sorting implementation (based around an O(1) lfu algorithm) can be activated by setting `wordcount.sorted: true` in the application properties 
 
 ### Todo
 * For CI setup GitHub Actions to run tests

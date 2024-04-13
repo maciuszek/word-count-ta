@@ -17,6 +17,7 @@ public class FileInputReader implements InputReader<Flux<String>, File> {
 
     private static final int MAXIMUM_WORD_SIZE = 1000;
 
+    // todo see if I can speed up the bottleneck introduced by reading 1 character from the file at a time, building a word manually and ensuring a maximum buffer size
     @Override
     public Flux<String> read(File file) {
         AtomicInteger bufferSize = new AtomicInteger(0);
