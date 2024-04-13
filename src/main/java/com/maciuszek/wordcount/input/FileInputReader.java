@@ -1,30 +1,52 @@
 package com.maciuszek.wordcount.input;
 
 import com.maciuszek.wordcount.exception.FileException;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class FileInputReader implements InputReader<Flux<String>, File> {
 
+    private static final int MAXIMUM_WORD_SIZE = 1000;
+
     @Override
     public Flux<String> read(File file) {
-        return Flux.using(
-                () -> new FileReader(file),
-                reader -> Flux.fromStream(new BufferedReader(reader).lines()),
-                reader -> {
-                    try {
-                        reader.close(); // this should be fine since the file stream itself is non-blocking and once the complete file is processed the application runtime is complete
-                    } catch (IOException e) {
-                        throw new FileException(FileException.Type.ERROR_CLOSING_FILE_READER, e);
+        AtomicInteger bufferSize = new AtomicInteger(0);
+        return DataBufferUtils.readAsynchronousFileChannel(
+                () -> AsynchronousFileChannel.open(
+                        Path.of(file.getAbsolutePath()),
+                        StandardOpenOption.READ
+                ),
+                new DefaultDataBufferFactory(),
+                1) // read and stream one character at a time avoid over allocating memory (e.g. very long line)
+                .map(dataBuffer -> (char) dataBuffer.read())
+                .bufferWhile(character -> {
+                    boolean isWordFinished = character != ' ' && character != ',' && character != '.' && character != '\n';
+                    if (isWordFinished) {
+                        bufferSize.set(0);
+                    } else {
+                        // use maximum file size to ensure we will not exceed memory
+                        if (bufferSize.incrementAndGet() > MAXIMUM_WORD_SIZE) {
+                            throw new FileException(FileException.Type.WORD_TOO_BIG, file.getPath());
+                        }
                     }
-                }
-        );
+                    return isWordFinished;
+                }) // build words todo this word building criteria probably needs adjustment
+                .map(characterList -> {
+                    StringBuilder sb = new StringBuilder();
+                    for (Character c : characterList) {
+                        sb.append(c);
+                    }
+                    return sb.toString();
+                });
     }
 
 }

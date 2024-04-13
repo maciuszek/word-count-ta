@@ -25,7 +25,7 @@ public class SimpleCountService implements CountService<Flux<WordCount>, Flux<St
 
         Map<String, Integer> wordCountMap = new HashMap<>(); // count words using hash key collision in hashmap
 
-        return flux.flatMap(this::scrapeWords)
+        return flux.map(this::format)
                 .doOnNext(word -> wordCountMap.compute(
                         word,
                         (key, val) -> (val == null) ? 1 : val + 1

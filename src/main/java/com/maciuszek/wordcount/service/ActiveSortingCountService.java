@@ -53,7 +53,7 @@ public class ActiveSortingCountService implements CountService<Flux<WordCount>, 
         tail.prev = head;
         wordFrequencyMap.put(0, tail);
 
-        return stream.flatMap(this::scrapeWords)
+        return stream.map(this::format)
                 .doOnNext(word -> {
                     WordCountNode wordNode = wordMap.get(word);
                     if (wordNode == null) {

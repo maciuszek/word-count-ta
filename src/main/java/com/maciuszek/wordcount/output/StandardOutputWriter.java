@@ -15,10 +15,11 @@ public abstract class StandardOutputWriter implements OutputWriter<Flux<WordCoun
     @Override
     public void write(Flux<WordCount> flux) {
         if (wordCountConfiguration.isDummy()) {
-            flux.subscribe(); // stream without printing, used for testing
+            flux.blockLast(); // stream without printing, used for testing
         } else {
             flux.map(formatter::format) // format the data for printing
-                    .subscribe(System.out::println);
+                    .doOnNext(System.out::println)
+                    .blockLast();
         }
     }
 

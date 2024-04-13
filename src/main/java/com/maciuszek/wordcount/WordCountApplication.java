@@ -30,6 +30,7 @@ public class WordCountApplication {
 	// todo add more debug/performance logging things like words processed
 	// todo add debug logging and/or metrics for things like memory usage/hashmap size
 	// todo add more javadocs
+	// todo speed up the implementation
 
 	public static void main(String[] args) {
 		SpringApplication.run(WordCountApplication.class, args);
